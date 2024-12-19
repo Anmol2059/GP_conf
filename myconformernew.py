@@ -47,20 +47,19 @@ class MyConformer(nn.Module):
         self.class_token = nn.Parameter(torch.randn(1, emb_size))
         self.fc5 = nn.Linear(emb_size, 2)
 
-    def forward(self, x, device):  # x shape [batch_size, sequence_length, emb_size]
-        # Add class token
+    def forward(self, x, device):  
         batch_size = x.size(0)
         class_tokens = self.class_token.expand(batch_size, -1, -1)
-        x = torch.cat((class_tokens, x), dim=1)  # [batch, 1+sequence_length, emb_size]
+        x = torch.cat((class_tokens, x), dim=1)  
 
         # Pass through Conformer and GP Blocks
         for i, layer in enumerate(self.encoder_blocks):
             x = layer(x)  # Process with Conformer Block
             
-            # Inject GP Block after every 2 Conformer layers
+            # GP Block after every 2 Conformer layers
             if self.use_gp_blocks and (i + 1) % 2 == 0:
                 seq_len = x.size(1)
-                hw_shape = (1, seq_len)  # Update this as needed for real data
+                hw_shape = (1, seq_len)  
                 x = self.gp_block(x, hw_shape)
 
         # Extract class token
@@ -82,7 +81,6 @@ class SSLModel(nn.Module): #W2V
         return
 
     def extract_feat(self, input_data):
-        # put the model to GPU if it not there
         if next(self.model.parameters()).device != input_data.device \
            or next(self.model.parameters()).dtype != input_data.dtype:
             self.model.to(input_data.device, dtype=input_data.dtype)
