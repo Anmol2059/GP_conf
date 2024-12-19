@@ -59,14 +59,12 @@ class MyConformer(nn.Module):
             # GP Block after every 2 Conformer layers
             if self.use_gp_blocks and (i + 1) % 2 == 0:
                 seq_len = x.size(1)
-                hw_shape = (1, seq_len)  
-                x = self.gp_block(x, hw_shape)
+                # hw_shape = (1, seq_len)  
+                x = self.gp_block(x, seq_len)
 
-        # Extract class token
         embedding = x[:, 0, :]  # Class token embedding [batch, emb_size]
 
-        # Classification head
-        out = self.fc5(embedding)  # Final output [batch, 2]
+        out = self.fc5(embedding)
         return out, embedding
 
 
